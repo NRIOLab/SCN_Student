@@ -90,10 +90,53 @@ th{background:#f8fafc;position:sticky;top:0}
 .badge.good{background:#ecfdf3}.badge.bad{background:#fef3f2}.badge.info{background:#eff8ff;color:#175cd3}
 .note{font-size:12px;color:var(--muted);line-height:1.45}
 .contractGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.contract-group{border:1px solid #d5dded;background:#f8faff;border-radius:11px;padding:11px;margin-top:10px}
+.contract-group-title{font-size:12px;font-weight:750;color:#244784;margin-bottom:9px}
+.contract-group .contractGrid>div:only-child{grid-column:1/-1}
+.contract-group .contractGrid>div{min-width:0}
+.contract-group-desc{font-size:11px;color:#667085;margin:0 0 9px}
+.contract-group .full{grid-column:1/-1}
 .full{grid-column:1/-1}
 hr{border:0;border-top:1px solid #eaecf0;margin:14px 0}
 .small{font-size:11px;color:var(--muted)}
 @media(max-width:1050px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+
+
+/* Keep contract settings compact; only this parameter panel scrolls. */
+.contract-scroll{max-height:clamp(250px,38vh,390px);overflow-y:auto;overscroll-behavior:contain;padding:0 10px 10px 2px;border:1px solid #d5dded;border-radius:11px;background:#fff;scrollbar-width:thin;scrollbar-color:#94a3b8 #eef2ff}
+.contract-scroll:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+.contract-scroll .contract-group:first-child{margin-top:8px}
+.contract-scroll-hint{font-size:11px;color:#667085;margin:7px 0 7px}
+@media(max-height:700px){.contract-scroll{max-height:32vh}}
+
+/* Floating rule-based negotiation coach */
+.coach-launcher{position:fixed;right:24px;bottom:24px;z-index:1001;display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#2563eb,#4338ca);color:#fff;border-radius:999px;padding:11px 17px 11px 12px;box-shadow:0 9px 28px rgba(37,99,235,.34);font-size:14px}
+.coach-launcher:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.coach-bot{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.18);font-size:25px}
+.coach-panel{position:fixed;right:24px;bottom:94px;width:min(430px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 120px));z-index:1002;background:#fff;border:1px solid #c7d2fe;border-radius:18px;box-shadow:0 18px 60px rgba(16,24,40,.23);overflow:hidden;display:flex;flex-direction:column}
+.coach-panel[hidden]{display:none}
+.coach-panel-head{display:flex;align-items:center;gap:10px;padding:15px 16px;background:linear-gradient(135deg,#1d4ed8,#4338ca);color:white}
+.coach-panel-head .coach-bot{flex-shrink:0}
+.coach-panel-head strong{font-size:16px}
+.coach-panel-head small{display:block;opacity:.86;margin-top:3px;font-size:11px}
+.coach-close{margin-left:auto;background:rgba(255,255,255,.18);color:white;padding:6px 11px;font-size:20px;line-height:1}
+.coach-content{padding:17px 18px;overflow-y:auto;font-size:13px;line-height:1.7;color:#344054}
+.coach-content b{color:#172033}
+.coach-content .bad{color:#b42318}
+.coach-content .good{color:#027a48}
+.coach-foot{padding:10px 17px;border-top:1px solid #eaecf0;background:#f8faff;font-size:11px;color:#667085}
+@media(max-width:550px){.coach-launcher{right:14px;bottom:14px}.coach-panel{right:12px;bottom:82px;max-height:calc(100vh - 104px)}}
+
+/* Collapsible demand settings; native disclosure supports mouse and keyboard. */
+.demand-collapse{margin-top:16px;border:1px solid #c7d2fe;border-radius:10px;background:#f8faff;overflow:hidden}
+.demand-collapse summary{display:flex;align-items:center;gap:8px;cursor:pointer;padding:11px 12px;font-size:14px;font-weight:700;color:#3730a3;list-style:none;user-select:none}
+.demand-collapse summary::-webkit-details-marker{display:none}
+.demand-collapse summary::before{content:'▸';font-size:17px;line-height:1;transition:transform .15s ease}
+.demand-collapse[open] summary::before{transform:rotate(90deg)}
+.demand-summary-hint{margin-left:auto;font-size:11px;font-weight:400;color:#667085}
+.demand-collapse[open] .demand-summary-hint{display:none}
+.demand-collapse-content{padding:0 11px 10px;background:white;border-top:1px solid #e4e7ec}
+.demand-collapse-content .tablewrap{margin-top:9px}
 </style>
 </head>
 <body>
@@ -125,21 +168,66 @@ hr{border:0;border-top:1px solid #eaecf0;margin:14px 0}
     <label>Order / production quantity (units)</label>
     <input id="Q" type="number" value="12000" step="1000" min="0">
 
-    <h3>2. Build the Contract</h3>
-    <div class="contractGrid">
-      <div><label>Wholesale price w ($)</label><input id="w" type="number" value="80"></div>
-      <div><label>Buyback price b ($)</label><input id="buyback" type="number" value="0"></div>
-      <div><label>Retail revenue share to manufacturer (%)</label><input id="revShare" type="number" value="0" min="0" max="100"></div>
-      <div><label>Manufacturer cost share paid by retailer (%)</label><input id="costShare" type="number" value="0" min="0" max="100"></div>
-      <div><label>Sales rebate threshold (units)</label><input id="rebateThreshold" type="number" value="0" step="1000"></div>
-      <div><label>Sales rebate ($ / unit above threshold)</label><input id="rebatePerUnit" type="number" value="0"></div>
-      <div><label>Fixed transfer: Retailer → Manufacturer ($)</label><input id="fixedTransfer" type="number" value="0"></div>
-      <div><label>Order discount threshold (units)</label><input id="discThreshold" type="number" value="0" step="1000"></div>
-      <div><label>Wholesale discount above threshold ($/unit)</label><input id="discPerUnit" type="number" value="0"></div>
-      <div><label>Min order (units)</label><input id="minQ" type="number" value="0"></div>
-      <div><label>Max order (units, 0 = none)</label><input id="maxQ" type="number" value="0"></div>
+    <h3 class="role-heading">2. Build the Contract</h3>
+    <p class="contract-scroll-hint">Scroll inside this box to adjust contract terms ↓</p>
+    <div class="contract-scroll" tabindex="0" aria-label="Scrollable contract parameters">
+    <div class="contract-group">
+      <div class="contract-group-title">Wholesale Pricing</div>
+      <div class="contractGrid">
+        <div><label>Wholesale price w ($)</label><input id="w" type="number" value="80"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Buyback Contract</div>
+      <div class="contractGrid">
+        <div><label>Buyback price b ($)</label><input id="buyback" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Revenue-Sharing Contract</div>
+      <div class="contractGrid">
+        <div><label>Retail revenue share to manufacturer (%)</label><input id="revShare" type="number" value="0" min="0" max="100"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Cost-Sharing Contract</div>
+      <div class="contractGrid">
+        <div><label>Manufacturer cost share paid by retailer (%)</label><input id="costShare" type="number" value="0" min="0" max="100"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Sales Rebate Contract</div>
+      <div class="contractGrid">
+        <div><label>Sales rebate threshold (units)</label><input id="rebateThreshold" type="number" value="0" step="1000"></div>
+        <div><label>Sales rebate ($ / unit above threshold)</label><input id="rebatePerUnit" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Quantity Discount Contract</div>
+      <div class="contractGrid">
+        <div><label>Order discount threshold (units)</label><input id="discThreshold" type="number" value="0" step="1000"></div>
+        <div><label>Wholesale discount above threshold ($/unit)</label><input id="discPerUnit" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Order Constraints</div>
+      <div class="contractGrid">
+        <div><label>Min order (units)</label><input id="minQ" type="number" value="0"></div>
+        <div><label>Max order (units, 0 = none)</label><input id="maxQ" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Fixed Transfer</div>
+      <div class="contractGrid">
+        <div><label>Fixed transfer: Retailer → Manufacturer ($)</label><input id="fixedTransfer" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="contract-group">
+      <div class="contract-group-title">Additional Terms</div>
       <div class="full"><label>Custom agreement note</label><textarea id="customNote" placeholder="e.g., If demand exceeds 16,000, renegotiate next-season wholesale price."></textarea></div>
     </div>
+
+    </div><!-- end contract-scroll -->
 
     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
       <button class="secondary" onclick="preset('none')">No Contract</button>
@@ -148,14 +236,18 @@ hr{border:0;border-top:1px solid #eaecf0;margin:14px 0}
       <button class="ghost" onclick="resetAll()">Reset</button>
     </div>
 
-    <h3>Demand Scenarios</h3>
-    <div class="tablewrap">
-      <table id="demandEdit">
-        <thead><tr><th>Demand</th><th>Probability</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <p class="small">Default distribution is the swimsuit example. You may edit both demand and probability for class experiments.</p>
+    <details class="demand-collapse">
+      <summary>Demand Scenarios <span class="demand-summary-hint">Click to expand</span></summary>
+      <div class="demand-collapse-content">
+        <div class="tablewrap">
+          <table id="demandEdit">
+            <thead><tr><th>Demand</th><th>Probability</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="small">Default distribution is the swimsuit example. You may edit both demand and probability for class experiments.</p>
+      </div>
+    </details>
   </aside>
 
   <main>
@@ -203,15 +295,34 @@ hr{border:0;border-top:1px solid #eaecf0;margin:14px 0}
       </div>
     </section>
 
-    <section class="card" style="margin-top:16px">
-      <h2>Negotiation Coach</h2>
-      <div id="coach" class="note"></div>
-    </section>
+
   </main>
 </div>
 </div>
 
+
+<!-- Floating assistant: same rule-based advice, new presentation only -->
+<button type="button" id="coachLauncher" class="coach-launcher" onclick="toggleCoach()" aria-controls="coachPanel" aria-expanded="false" aria-label="Open Negotiation Coach">
+  <span class="coach-bot" aria-hidden="true">🤖</span><span>Negotiation Coach</span>
+</button>
+<section id="coachPanel" class="coach-panel" role="dialog" aria-label="Negotiation Coach" hidden>
+  <div class="coach-panel-head"><span class="coach-bot" aria-hidden="true">🤖</span><div><strong>Negotiation Coach</strong><small>Rule-Based AI · Contract Advice</small></div><button type="button" class="coach-close" onclick="toggleCoach(false)" aria-label="Close coach">×</button></div>
+  <div id="coach" class="coach-content" aria-live="polite"></div>
+  <div class="coach-foot">Advice updates when you recalculate your contract.</div>
+</section>
+
 <script>
+
+function toggleCoach(force){
+  const panel=document.getElementById('coachPanel');
+  const launcher=document.getElementById('coachLauncher');
+  const open=typeof force==='boolean'?force:panel.hidden;
+  panel.hidden=!open;
+  launcher.setAttribute('aria-expanded',String(open));
+  launcher.setAttribute('aria-label',open?'Close Negotiation Coach':'Open Negotiation Coach');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')toggleCoach(false)});
+
 const defaults = [
   {d:8000,p:.11},{d:10000,p:.11},{d:12000,p:.28},
   {d:14000,p:.22},{d:16000,p:.18},{d:18000,p:.10}
@@ -362,7 +473,35 @@ function coach(res,base,Q){
   if(res.R<base.R) text+=`<span class="bad">Retailer earns less than the no-contract baseline.</span> Consider a lower wholesale price, higher buyback, rebate, or reduced revenue share.<br>`;
   if(res.M<base.M) text+=`<span class="bad">Manufacturer earns less than the no-contract baseline.</span> Consider a higher wholesale price, lower buyback, higher revenue share, fixed transfer, or volume growth.<br>`;
   if(res.R>=base.R && res.M>=base.M) text+=`<span class="good"><b>Pareto-improving contract:</b> both parties are at least as well off as the baseline.</span><br>`;
-  text+=`<b>Negotiation question:</b> Can you alter the transfer terms so your side gains more while the opponent still has at least its reservation profit?`;
+  // Rule-based, role-specific negotiation advice based on active contract terms.
+  const own=role==='Retailer'?res.R:res.M;
+  const ownBase=role==='Retailer'?base.R:base.M;
+  const other=role==='Retailer'?res.M:res.R;
+  const otherBase=role==='Retailer'?base.M:base.R;
+  const advice=[];
+  if(own<ownBase){
+    if(role==='Retailer'){
+      advice.push('Your expected profit is below your baseline. Negotiate a lower wholesale price or a higher buyback price to reduce your exposure.');
+      if(val('revShare')>0) advice.push('Consider reducing the revenue-sharing percentage; it reduces the revenue you retain from each sale.');
+      if(val('costShare')>0) advice.push('Review the production-cost contribution you are paying and ask for an offsetting concession.');
+    }else{
+      advice.push('Your expected profit is below your baseline. Negotiate a higher wholesale price or a smaller buyback obligation.');
+      if(val('revShare')===0) advice.push('Consider a modest revenue-sharing clause in exchange for a lower wholesale price.');
+      if(val('rebatePerUnit')>0) advice.push('Review the sales rebate: a lower rebate or higher sales threshold may protect your margin.');
+    }
+  }else if(other<otherBase){
+    advice.push('Your side is above its baseline, but the other party is below theirs. Offer a concession that improves their acceptance incentive.');
+    advice.push(role==='Retailer'?'Consider a higher wholesale price or a fixed payment to the manufacturer, provided your own profit remains acceptable.':'Consider a lower wholesale price, a buyback provision, or a rebate, provided your own profit remains acceptable.');
+  }else{
+    advice.push('Both parties are at least at their baseline profits. Preserve this win–win outcome while testing whether a different order quantity improves the available surplus.');
+    if(role==='Retailer') advice.push('If you want a larger share of the surplus, test a lower wholesale price or fixed transfer while keeping the manufacturer willing to accept.');
+    else advice.push('If you want a larger share of the surplus, test a higher wholesale price or fixed transfer while keeping the retailer willing to accept.');
+  }
+  if(val('buyback')>0 && role==='Manufacturer') advice.push('A buyback clause shifts unsold-inventory risk to you; check whether the wholesale price compensates for that risk.');
+  if(val('rebateThreshold')>0 && val('rebatePerUnit')>0) advice.push('Your sales rebate applies only to units actually sold above the threshold, not to every unit ordered.');
+  if(val('discThreshold')>0 && val('discPerUnit')>0) advice.push('The quantity discount applies to the entire order once the threshold is reached; examine the profit change around that threshold.');
+  if(Q!==bestT.q) advice.push('Compare your current order quantity with '+bestT.q.toLocaleString()+' units, which maximizes total expected profit within the tested range.');
+  text+=`<b>Negotiation advice:</b><br>`+advice.map((a,i)=>`${i+1}. ${a}`).join('<br>');
   if(document.getElementById('customNote').value.trim()) text+=`<br><b>Your custom clause:</b> ${escapeHtml(document.getElementById('customNote').value.trim())}`;
   document.getElementById('coach').innerHTML=text;
 }
